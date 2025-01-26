@@ -1,10 +1,10 @@
-package com.mmstechnology.brewery.api_brewery.web.controller;
+package com.mmstechnology.brewery.api_brewery.web.controller.v2;
 
 import com.mmstechnology.brewery.api_brewery.exception.BeerCantBeCreated;
 import com.mmstechnology.brewery.api_brewery.exception.BeerNotFound;
-import com.mmstechnology.brewery.api_brewery.service.BeerService;
-import com.mmstechnology.brewery.api_brewery.service.BeerServiceImpl;
-import com.mmstechnology.brewery.api_brewery.web.model.BeerDto;
+import com.mmstechnology.brewery.api_brewery.service.v2.BeerServiceImplV2;
+import com.mmstechnology.brewery.api_brewery.service.v2.BeerServiceV2;
+import com.mmstechnology.brewery.api_brewery.web.model.v2.BeerDtoV2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,29 +16,28 @@ import java.util.UUID;
 
 
 @Slf4j
-@RequestMapping("/api/v1/beer")
+@RequestMapping("/api/v2/beer")
 @RestController
-@Deprecated
-public class BeerController {
+public class BeerControllerV2 {
 
-    private final BeerService beerService;
+    private final BeerServiceV2 beerServiceV2;
 
     @Autowired
-    public BeerController(BeerServiceImpl beerServiceImpl) {
-        this.beerService = beerServiceImpl;
+    public BeerControllerV2(BeerServiceImplV2 beerServiceImpl) {
+        this.beerServiceV2 = beerServiceImpl;
     }
 
     @GetMapping("/{beerId}")
-    public ResponseEntity<BeerDto> getBeerById(@PathVariable("beerId") UUID beerId) {
-        return beerService.getBeerById(beerId)
+    public ResponseEntity<BeerDtoV2> getBeerById(@PathVariable("beerId") UUID beerId) {
+        return beerServiceV2.getBeerById(beerId)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new BeerNotFound("Beer not found with id: " + beerId));
     }
 
     @PostMapping
-    public ResponseEntity<BeerDto> saveNewBeer(@RequestBody BeerDto beerDto) {
-        BeerDto beerDtoCreated = beerService.saveNewBeer(beerDto)
-                .orElseThrow(() -> new BeerCantBeCreated("Beer can't be created with id: " + beerDto.getId()));
+    public ResponseEntity<BeerDtoV2> saveNewBeer(@RequestBody BeerDtoV2 beerDtoV2) {
+        BeerDtoV2 beerDtoCreated = beerServiceV2.saveNewBeer(beerDtoV2)
+                .orElseThrow(() -> new BeerCantBeCreated("Beer can't be created with id: " + beerDtoV2.getId()));
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/v1/beer/" + beerDtoCreated.getId().toString());
@@ -46,8 +45,8 @@ public class BeerController {
     }
 
     @PutMapping("/{beerId}")
-    public ResponseEntity<BeerDto> updateBeer(@PathVariable("beerId") UUID beerId, @RequestBody BeerDto beerDto) {
-        BeerDto beerDtoUpdated = beerService.updateBeer(beerId, beerDto)
+    public ResponseEntity<BeerDtoV2> updateBeer(@PathVariable("beerId") UUID beerId, @RequestBody BeerDtoV2 beerDtoV2) {
+        BeerDtoV2 beerDtoUpdated = beerServiceV2.updateBeer(beerId, beerDtoV2)
                 .orElseThrow(() -> new BeerNotFound("Beer not found with id: " + beerId));
 
         HttpHeaders headers = new HttpHeaders();
@@ -59,7 +58,7 @@ public class BeerController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBeer(@PathVariable("beerId") UUID beerId) {
         log.debug("In controller - Deleting beer with id: " + beerId);
-        beerService.deleteBeer(beerId);
+        beerServiceV2.deleteBeer(beerId);
     }
 
 
